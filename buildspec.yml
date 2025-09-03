@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      # The correct PowerShell command for ECR login
+      - aws ecr get-login-password --region $env:AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com"
+      # Alternative approach using AWS PowerShell modules
+      # - Install-Module -Name AWSPowerShell.NetCore -Force -SkipPublisherCheck
+      # - Import-Module AWSPowerShell.NetCore
+      # - $ecrLoginCommand = (Get-ECRLoginCommand -Region $env:AWS_DEFAULT_REGION).Command
+      # - Invoke-Expression -Command $ecrLoginCommand
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $env:IMAGE_REPO_NAME:$env:IMAGE_TAG .
+      - docker tag $env:IMAGE_REPO_NAME:$env:IMAGE_TAG "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com/$env:IMAGE_REPO_NAME:$env:IMAGE_TAG"
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com/$env:IMAGE_REPO_NAME:$env:IMAGE_TAG"
+      - Write-Host "Docker image push completed with exit code $LASTEXITCODE"
+
+cache:
+  paths:
+    - 'C:\ProgramData\Docker\**\*'
