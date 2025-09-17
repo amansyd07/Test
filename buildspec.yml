@@ -14,12 +14,15 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t $env:IMAGE_REPO_NAME:$env:IMAGE_TAG .
-      - docker tag $env:IMAGE_REPO_NAME:$env:IMAGE_TAG "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com/$env:IMAGE_REPO_NAME:$env:IMAGE_TAG"
+      - git clone https://github.com/acemilyalcin/sample-node-project.git
+      - cd sample-node-project
+      - docker-compose up --build
+     # - docker build -t $env:IMAGE_REPO_NAME:$env:IMAGE_TAG .
+      #- docker tag $env:IMAGE_REPO_NAME:$env:IMAGE_TAG "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com/$env:IMAGE_REPO_NAME:$env:IMAGE_TAG"
   post_build:
     commands:
       - echo Pushing the Docker image...
-      - docker push "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com/$env:IMAGE_REPO_NAME:$env:IMAGE_TAG"
+      #- docker push "$env:AWS_ACCOUNT_ID.dkr.ecr.$env:AWS_DEFAULT_REGION.amazonaws.com/$env:IMAGE_REPO_NAME:$env:IMAGE_TAG"
       - Write-Host "Docker image push completed with exit code $LASTEXITCODE"
 
 cache:
